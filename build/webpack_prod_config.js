@@ -8,53 +8,66 @@ const HtmlWebpackPlugin = require("html-webpack-plugin")
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier")
 const CompressionWebpackPlugin = require("compression-webpack-plugin")
 
-// dev config
+// extend the config from webpack_base_config
 module.exports = merge(base_webpack_config, {
     "plugins": [
         
-        // set env
+       // defines the global constants
         new webpack.DefinePlugin({
+            // set the node env as production
             "process.env": config.build.env
         }),
         
-        // remove all unused code
+        // minify the bundle
+        // remove unused or unreachable code
         new webpack.optimize.UglifyJsPlugin({
+            // use the compress option to compress warnings, errors
             "compress": { "warnings": false },
+            // generate source map: false
             "sourceMap": false,
+            // remove comments: false
             "comments": false,
+            // disable mangler: false
             "mangle": true,
             "minimize": true
         }),
     
-        // set correct context for angular
+        //overriding the inferred information or context
         new webpack.ContextReplacementPlugin(
+             // get the correct current folder or context for angular libraries
             /angular(\\|\/)core(\\|\/)@angular/,
             path.join(__dirname, "..", "src")
         ),
 
-        // notify on succesfull build
-        new WebpackBuildNotifierPlugin({ "title": "build complete" }),
+        // notifies webpack build errors: success or error or waring
+        // uses the title option to specify the notification title
+        new WebpackBuildNotifierPlugin({ "title": "webpack build completed" }),
         
-        // skip the emitting phase whenever there are errors while compiling
+       // skip emiting if there are errors during compilation, 
+        //ensures that no assets are emitted that has errors
         new webpack.NoEmitOnErrorsPlugin(),
         
-        // Generate HTML on the fly.
-        // All chunks created by webpack will be automatically injected
-        // If you already have a template file and want to use your own, specify the path on the template property.
+        // Generate HTML dynamically.
+        // all the chunks are automatically injected
         new HtmlWebpackPlugin({
             "filename": "index.html",
             "template": "../index.html",
             "inject": true
         }),
         
-        // GZIP the files
+        // compress the assets
         new CompressionWebpackPlugin({
+            // add path of the origin asset
             asset: "[path].gz[query]",
+            // compression algorithm to use
             algorithm: "gzip",
+            // assets matching the regex are processsed
             test: new RegExp(
                 "\\.(" + config.build.productionGzipExtensions.join("|") +")$"
             ),
+            // assers bigger than the below size are only processed
             threshold: 10240,
+            // assets than compress better than the specified ratio are compressed
             minRatio: 0.8
         }),
     ]
