@@ -10,6 +10,7 @@ const WebpackBuildNotifierPlugin = require("webpack-build-notifier")
 
 
 // add entry chunks to hot-module-relod
+// adds hot reloading middleware to each entry or the chunks
 Object.keys(base_webpack_config.entry).forEach(function (name) {
     base_webpack_config.entry[name] = [path.join(__dirname, "dev_client")].concat(base_webpack_config.entry[name])
 })
